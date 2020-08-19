@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+
+    {{response}}
+
+
+    <h2>payment status regarding your order Id {{response.ORDERID}}</h2>
+    {% if response.RESPCODE == '01' %}
+    ORDER SUCCESS
+    {% else %}
+    ORDER FAILURE
+    {% endif %}
+{% endblock %}

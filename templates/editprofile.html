@@ -1,0 +1,93 @@
+{% extends "index.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revolin</title>
+
+
+</head>
+    
+{% block content %}
+
+<style>
+    table, td, th {
+        border: 1px solid black;
+        }
+        
+    table {
+    border-collapse: collapse;
+    width: 50%;
+    }
+    
+    th {
+    height: 50px;
+    }
+    td {
+        width: 25%;
+    }
+    
+</style>
+    <center><h1>{{text}}</h1></center>
+
+    <form action="{% url "update" user.id %}" method="POST">
+        {% csrf_token %}
+    <center>
+    <table>
+    <tr>
+        <th>Fields</th>
+        <th>Info</th>
+    </tr>
+
+    <tr>
+        <td>Name</td>
+        <td><input type="text" value={{profile_user.user_name}} name="Candidate_Name"></td>
+    </tr>
+
+    <tr>
+        <td>Email Id</td>
+        <td><input type="email" value="{{profile_user.user_email}}" name="Candidate_Emailid"></td>
+    </tr>
+
+    <tr>
+        <td>Date of Birth</td>
+        <td><input type="text" value="{{profile_user.user_dob}}" name="Candidate_DOB"></td>
+
+    </tr>
+
+    <tr>
+        <td>Gender</td>
+        <td><input type="text" value="{{profile_user.user_gender}}" name="Candidate_Gender"></td>
+    </tr>
+
+    <tr>
+        <td>Phone Number</td>
+        <td><input type="number" value="{{profile_user.user_phonenumber}}" name="Candidate_Phonenumber"></td>
+    </tr>
+    <tr>
+        <td>Address</td>
+        <td><input type="text" value="{{profile_user.user_address}}" name="Candidate_Address"</td>
+    </tr>
+    <tr>
+        <td>City</td>
+        <td><input type="text" value="{{profile_user.user_city}}" name="Candidate_City"></td>
+    </tr>
+
+    <tr>
+        <td>State</td>
+        <td><input type="text" value="{{profile_user.user_state}}" name="Candidate_State"></td>
+    </tr>
+
+    </table>
+    <br>
+
+    <input type="submit" value="Update" name="update">
+    <a href="{% url "profile" user.id %}"><input type="button" value="Cancel" name="cancel"></a>
+</center>
+</form>
+{% endblock %}
+    
+
+</html>

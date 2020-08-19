@@ -1,0 +1,40 @@
+{% extends 'index.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="topnav.css">
+    <title>Revolin</title>
+</head>
+
+<body>
+
+    {% block topnav %}
+        <div class="topnav" id="nav">
+            <a href="{% url "index" %}">Home</a>
+            <a class="active" href="{% url "Aboutus" %}">About Us</a>
+            <a href="{% url "News" %}">News</a>
+            <a href="{% url "Offers" %}">Offers</a>
+        {% endblock %}
+
+    {% block content %}
+
+
+<div class="aboutus">
+    <h1>
+        Revolin India Private Limited
+    </h1>
+    <p>Revolin was established in 2019. Its first product is Revolin e-commerce website. Its is providing job for nearly 30,000 persons across India.</p>
+
+    <center>
+        Email : Revolin@customercare.com<br>
+        Contact us :040-24040404
+
+    </center>
+</div>
+    <br><br><br><br><br><br><br>
+    {% endblock %}
+</body>
+</html>

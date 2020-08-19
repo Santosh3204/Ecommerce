@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revolin</title>
+</head>
+
+{% block content %}
+{% load static %}
+<style>
+   
+    body {
+        background-image: url('/media/Ecommerce.jpg');
+        
+    }
+
+    .login {
+        background-color: cornflowerblue;
+        color: black;
+        width: 30%;
+    }
+   
+
+</style>
+
+    <body>
+    <center>
+    <div class="login">
+        <h1>Login</h1>
+        <form action="{% url "Login" %}" method="POST">
+
+            
+            {% csrf_token %}
+            Enter your username : <input type="text" value="" name="username"><br><br>
+            Enter your password : <input type="password" value="" name="password"><br><br>
+            <input type="submit" value="Login" name="LoginAccount">
+        </form>
+            <br>
+            Don't have an account, <a href="{% url "Register" %}">Register</a> here<br>
+            <br>
+        </center>
+    </div>
+    <br>
+    {% for message in messages %}
+            <h3>
+                Note : {{message}}
+            </h3>
+    {% endfor %}
+</body>
+<br>
+{% endblock %}
+</html>

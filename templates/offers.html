@@ -1,0 +1,29 @@
+{% extends 'index.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revolin</title>
+</head>
+<body>
+
+    {% block topnav %}
+        <div class="topnav" id="nav">
+            <a href="{% url "index" %}">Home</a>
+            <a href="{% url "Aboutus" %}">About Us</a>
+            <a href="{% url "News" %}">News</a>
+            <a class="active" href="{% url "Offers" %}">Offers</a>
+        {% endblock %}
+
+    {% block content %}
+    <center>
+        <h1>
+            Offers
+        </h1>
+    </center>
+    <p><h3>No Offers at present</h3></p>
+    <br><br><br><br><br><br><br>
+    {% endblock %}
+</body>
+</html>

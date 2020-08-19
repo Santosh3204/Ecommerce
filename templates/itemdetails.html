@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+<html>
+    <body>
+        {% block content %}
+        <style>
+            .item_info {
+                padding: initial;
+            }
+        </style>
+        <table>
+            <tr>
+             <td><img src="{{item.item_image.url}}" width="500px" height="300px"></td>
+            
+            <div>
+            <td>
+            <h2>{{item.item_name}}</h2>
+            <h3>Price: Rs.{{item.item_price}}</h3>
+            <h3>Publisher: {{item.item_publisher}}</h3>
+            <h3>Country of Origin: {{item.item_origin}}</h3>
+            <h3>More Information About Item:</h3>
+            <h4>{{item.item_description}}</h4>
+            {% if user.is_authenticated %}
+                <a href="{% url "buynow" item.id user.id %}"><button>Buy Now</button></a>
+    
+                <a href="{% url 'addtocart' user.id item.id %}"><button>Add to Cart</button></a>
+
+            {% else %}
+            <a href="{% url "buynow" %}"><button>Buy Now</button></a>
+    
+            <a href="{% url 'addtocart_inactiveuser' %}"><button>Add to Cart</button></a>
+            {% endif %}
+            
+
+
+            </td>
+            </div>
+            </tr>
+
+        
+    </table>
+        {% endblock %}
+    </body>
+</html>
