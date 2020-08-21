@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
-from .views import Register, Login, logout_user, dropdown, profile, addtocart, addtocart_view, addtocart_inactiveuser, deleteitem, increase_quantity, decrease_quantity, editprofile, update, buynow, handlerequest
-
+from .views import Register, Login, logout_user, dropdown, profile, addtocart, addtocart_view, addtocart_inactiveuser, deleteitem, increase_quantity, decrease_quantity, editprofile, update, buynow, buynow_cart, conformorder, generatepdf, orders_view
+from .utils import render_to_pdf
 
 
 urlpatterns = [
@@ -19,6 +19,10 @@ urlpatterns = [
    path('editprofile/<int:userid>/', editprofile, name="editprofile"),
    path('update/<int:userid>/', update, name="update"),
    path('buynow/<int:itemid>/<int:userid>/', buynow, name="buynow"),
-   path('handlerequest/', handlerequest, name="handlerequest"),
+  #path('handlerequest/', handlerequest, name="handlerequest"),
+   path('buynow_cart/<int:itemid>/<userid>/', buynow_cart, name="buynow_cart"),
+   #path('conformorder/<int:userid>/<int:itemid>/', conformorder, name="conformorder"),
+   path('pdf/<int:userid>/<int:itemid>/', generatepdf, name="generatepdf"),
+   path('orders/<int:userid>/', orders_view, name="orders_view"),
    
 ]

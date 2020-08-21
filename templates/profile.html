@@ -79,7 +79,13 @@
 
     </table>
     <br>
+    {% if user.id %}
     <a href="{% url "editprofile" user.id %}"><input type="button" value="Edit" name="Edit"></a>
+
+    {% else %}
+        <a href="{% url "" %}">Goto Home Page</a>
+
+    {% endif %}    
 </center>
 {% endblock %}
     

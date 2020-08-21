@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 # Create your models here.
 """
@@ -44,6 +46,32 @@ class AddToCart(models.Model):
     cart_publisher = models.CharField(max_length=1024)
     cart_origin = models.CharField(max_length=1024)
     cart_description = models.TextField()
-    cart_slug = models.SlugField()
     cart_quantity = models.PositiveIntegerField(default=0)
     cart_total_price = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.cart_name
+
+
+def return_datetime():
+    now = timezone.now()
+    return now + timedelta(days=2)
+
+
+class Order(models.Model):
+    order_useremail = models.EmailField(default=None)
+    order_name = models.CharField(max_length=1024)
+    order_image = models.ImageField(upload_to = 'orderimages/')
+    order_price = models.PositiveIntegerField()
+    order_publisher = models.CharField(max_length=1024)
+    order_origin = models.CharField(max_length=1024)
+    order_description = models.TextField()
+    order_quantity = models.PositiveIntegerField(default=1)
+    order_total_price = models.PositiveIntegerField(default=0)
+    order_ordered_date = models.DateTimeField(default= datetime.now())
+    order_delivery_date = models.DateTimeField(default= return_datetime)
+    order_address = models.TextField(default="address")
+    order_phonenumber = models.IntegerField(default=9912341234)
+
+    def __str__(self):
+        return self.order_name

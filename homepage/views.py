@@ -28,7 +28,11 @@ def buynow(request):
     return render(request, 'buynow.html', {'text' : text})
 """
 def searchbar(request):
-    return render(request, 'dropdown.html')
+    if request.method == "POST":
+        search = request.POST['searchbar']
+        items = Item.objects.filter(item_name__contains= search)
+
+        return render(request, 'showitems.html', {'items': items})
 
 def itemdetails(request, itemid):
     item = Item.objects.get(pk= itemid)

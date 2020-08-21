@@ -1,0 +1,78 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+<body>
+
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+          text-align: left;
+        }
+        </style>
+
+
+    <h2>Conform Item Details</h2>
+<form method="POST" action="{% url "generatepdf" user.id order.id %}">
+
+  {% csrf_token %}
+<table style="width:100%">
+  <tr>
+    <th>Name:</th>
+    <td><h2>{{order.order_name}}</h2></td>
+  </tr>
+
+  <tr>
+    <th>Image</th>
+    <td><img src="{{order.order_image.url}}" alter= "{{order.order_name}}" width="250px" height="250px"></td>
+  </tr>
+
+  <tr>
+    <th>Phone Number</th>
+    <td><input type="number" value="{{order.order_phonenumber}}" name="phonenumber"> (Can be Changed)</td>
+ </tr>
+  <tr>
+
+    <tr>
+        <th>Address</th>
+        <td><input type="text" value="{{order.order_address}}" name="address" width="50px" height="10px"> (Can be Changed)</td>
+    </tr>
+
+    <th>Quantity</th>
+    <td><input type="number" value="{{order.order_quantity}}" name="quantity"> (Edit Quantity if needed here)</td>
+  </tr>
+
+  <tr>
+      <th>Total Price</th>
+      <td>{{order.order_price}}/-</td>
+  </tr>
+
+  
+</table>
+
+<br>
+
+<center>
+
+    <input type="submit" value="Conform Order" name="conformorder">
+
+    
+    <a href="/"><input type="button" value="Cancel" name="cancelorder"></a>
+
+    <p>
+      By clicking on "Conform Order" your are Placing an Order.<b>Please Download PDF for future reference.</b><br>
+      This website is a project. So you need not to pay Money. Its just a prototype.<br>
+      Be Free to use this website's all functions.<br>
+      Thank you<br>
+    </p>
+</center>
+
+</form>
+
+<br><br><br><br><br><br><br><br>
+</body>
+{% endblock %}

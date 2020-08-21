@@ -2,15 +2,20 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User, auth
 from django.contrib.auth import logout
-from accounts.models import UserRegister, AddToCart
+from accounts.models import UserRegister, AddToCart, Order
 from homepage.models import Item
 from django.views.decorators.csrf import csrf_exempt
 from paytm import Checksum
+
+from django.http import HttpResponse
+from django.views.generic import View
+from datetime import date, datetime
+from accounts.utils import render_to_pdf #created in step 4
 # Create your views here.
 MERCHANT_KEY = 'kbzk1DSbJiV_O3p5'
 
 
-def Register(request):
+def Register(request):                                  # New user registration
     if request.method == 'POST':
 
         user = UserRegister()
@@ -52,7 +57,7 @@ def Register(request):
     else:
         return render(request, 'register.html')
 
-def Login(request):
+def Login(request):                                             #User Login Function
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
@@ -73,30 +78,44 @@ def Login(request):
         return render(request, 'login.html')
 
 
-def logout_user(request):
+def logout_user(request):                                            # Logout Function
     logout(request)
     return render(request, 'logout.html')
 
 def dropdown(request):
     text = "All functions of drop down menu will come into work as soon as possible"
     return render(request, 'dropdown.html', {'text':text})
-    
 
-def addtocart_view(request, userid):
-    current_user = User.objects.get(pk = userid)
-    #cart_all_items = AddToCart.objects.get(cart_useremail= current_user.email )
-    if AddToCart.objects.filter(cart_useremail= current_user.email).exists():
-       cart_all_items = AddToCart.objects.filter(cart_useremail= current_user.email )
-       return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
-    
+
+
+def orders_view(request, userid):
+    login_user = User.objects.get(pk= userid)
+    user = UserRegister.objects.get(user_email= login_user.email)
+
+    order = Order.objects.filter(order_useremail= login_user.email)
+    return render(request, 'orders_view.html', {'order': order})
+
+def addtocart_view(request, userid):                                 # Add to cart all items
+    if User.is_authenticated:
+        current_user = User.objects.get(pk = userid)
+        #cart_all_items = AddToCart.objects.get(cart_useremail= current_user.email )
+        if AddToCart.objects.filter(cart_useremail= current_user.email).exists():
+            cart_all_items = AddToCart.objects.filter(cart_useremail= current_user.email )
+            return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
+
+        else:
+        
+            text = "No Items in your cart !!!"
+            return render(request, 'note.html', {'text': text})
+
     else:
-        
-        text = "No Items in your cart !!!"
+        text="Please Login in to your account !!!"
         return render(request, 'note.html', {'text': text})
+
         
 
 
-def addtocart(request, userid, itemsid):
+def addtocart(request, userid, itemsid):                        # Add to cart current item display at top
     if User.is_authenticated:
         current_user = User.objects.get(pk = userid)
         #print(current_user.email)
@@ -122,12 +141,12 @@ def addtocart(request, userid, itemsid):
                 #cart_add_item.cart_quantity += 1
                 #cart_add_item.save()
             else:
-                print("1st else part")
+                #print("1st else part")
                 cart_add_item.cart_quantity = 1
                 cart_add_item.save()
 
         else:
-            print("2nd else")
+            #print("2nd else")
             cart_add_item.cart_quantity = 1
             cart_add_item.save()
 
@@ -143,49 +162,72 @@ def addtocart(request, userid, itemsid):
 
 
         return render(request, 'addtocart.html', {'cart_add_item': cart_add_item, 'cart_all_items': cart_all_items})
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
 
-def addtocart_inactiveuser(request):
+
+def addtocart_inactiveuser(request):                                    # Add to cart INACTIVE user
     text = "Please login to add it in your cart"
     return render(request, 'note.html', {'text': text})
 
 def deleteitem(request, itemid, userid):
-    if AddToCart.objects.filter(pk= itemid).exists():
-        login_user = User.objects.get(pk= userid)
-        item = AddToCart.objects.get(pk=itemid ,cart_useremail= login_user.email)
-        item.delete()
-    
-    else:
-        text = "No Item exists in your cart. Please go to Homepage and add items in your cart."
-        return render(request, 'note.html', {'text': text})
-    cart_all_items = AddToCart.objects.filter(cart_useremail= login_user.email)
-    return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
-
-def increase_quantity(request, itemid, userid):
-    if AddToCart.objects.filter(pk= itemid).exists():
-        login_user = User.objects.get(pk= userid)
-        item = AddToCart.objects.get(pk=itemid ,cart_useremail= login_user.email)
-        item.cart_quantity += 1
-        item.save()    
-    item.cart_total_price = item.cart_quantity * item.cart_price
-    item.save()
-    cart_all_items = AddToCart.objects.filter(cart_useremail= login_user.email)
-    return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
-
-def decrease_quantity(request, itemid, userid):
-    if AddToCart.objects.filter(pk= itemid).exists():
-        login_user = User.objects.get(pk= userid)
-        item = AddToCart.objects.get(pk= itemid, cart_useremail= login_user.email)
-        if item.cart_quantity == 1:
-            pass
+    if User.is_authenticated:
+        if AddToCart.objects.filter(pk= itemid).exists():
+            login_user = User.objects.get(pk= userid)
+            item = AddToCart.objects.get(pk=itemid ,cart_useremail= login_user.email)
+            item.delete()
+        
         else:
-            item.cart_quantity -= 1
-            item.save()    
-    item.cart_total_price = item.cart_quantity * item.cart_price
-    item.save()
+            text = "No Item exists in your cart. Please go to Homepage and add items in your cart."
+            return render(request, 'note.html', {'text': text})
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+
     cart_all_items = AddToCart.objects.filter(cart_useremail= login_user.email)
     return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
 
-def profile(request, userid):
+def increase_quantity(request, itemid, userid):                       # Increasing qunatity
+    if User.is_authenticated:
+        if AddToCart.objects.filter(pk= itemid).exists():
+            login_user = User.objects.get(pk= userid)
+            item = AddToCart.objects.get(pk=itemid ,cart_useremail= login_user.email)
+            item.cart_quantity += 1
+            item.save()    
+        
+        item.cart_total_price = item.cart_quantity * item.cart_price
+        item.save()
+        cart_all_items = AddToCart.objects.filter(cart_useremail= login_user.email)
+        return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
+
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+def decrease_quantity(request, itemid, userid):                     #decrease quantity
+    if User.is_authenticated:
+        if AddToCart.objects.filter(pk= itemid).exists():
+            login_user = User.objects.get(pk= userid)
+            item = AddToCart.objects.get(pk= itemid, cart_useremail= login_user.email)
+            if item.cart_quantity == 1:
+                pass
+            else:
+                item.cart_quantity -= 1
+                item.save()    
+
+    
+        item.cart_total_price = item.cart_quantity * item.cart_price
+        item.save()
+        cart_all_items = AddToCart.objects.filter(cart_useremail= login_user.email)
+        return render(request, 'addtocart.html', {'cart_all_items': cart_all_items})
+
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+def profile(request, userid):                                   # Profile data page
     if User.is_authenticated:
         text = "Your details"
         print(userid)
@@ -194,14 +236,23 @@ def profile(request, userid):
         print(type(current_user))
         profile_user = UserRegister.objects.get(user_name= current_user.username)
         print(type(profile_user))
-    return render(request, 'profile.html', {'profile_user':profile_user, 'text':text})
+        return render(request, 'profile.html', {'profile_user':profile_user, 'text':text})
 
-def editprofile(request, userid):
-    login_user = User.objects.get(pk= userid)
-    current_user = UserRegister.objects.get(user_email=login_user.email)
-    return render(request, 'editprofile.html', {'profile_user': current_user})
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
 
-def update(request, userid):
+def editprofile(request, userid):                           # Editing profile data
+    if User.is_authenticated:
+        login_user = User.objects.get(pk= userid)
+        current_user = UserRegister.objects.get(user_email=login_user.email)
+        return render(request, 'editprofile.html', {'profile_user': current_user})
+
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+def update(request, userid):                                # Updating profile data sucessfully
     if User.is_authenticated:
         login_user = User.objects.get(pk= userid)
         user = UserRegister.objects.get(user_email=login_user.email)
@@ -219,14 +270,146 @@ def update(request, userid):
 
             user.save()
 
-    return redirect('index')
+            return redirect('index')
 
-def buynow(request, itemid, userid):
-    #Request paytm to add money from user account to your account
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+def buynow(request, itemid, userid):                            # Homepage BUYNOW function
+    if User.is_authenticated:
+        #Request paytm to add money from user account to your account
+        login_user = User.objects.get(pk= userid)
+        user = UserRegister.objects.get(user_email=login_user.email)
+
+        orderitem = Item.objects.get(pk= itemid)
+        if Order.objects.filter(order_name= orderitem.item_name, order_useremail= login_user.email).exists():
+            order = Order.objects.get(order_name= orderitem.item_name, order_useremail= login_user.email)
+            return render(request, "order.html", {'order': order})
+
+        else:
+            ordereditem = Item.objects.get(pk= itemid)
+            order = Order()
+            order.order_useremail = login_user.email
+            order.order_name = ordereditem.item_name
+            order.order_image = ordereditem.item_image
+            order.order_price = ordereditem.item_price
+            order.order_publisher = ordereditem.item_publisher
+            order.order_description = ordereditem.item_description
+            order.order_origin = ordereditem.item_origin
+            order.order_phonenumber = user.user_phonenumber
+            order.order_address = user.user_address
+            order.save() 
+            return render(request, "order.html", {'order': order})
+
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+def buynow_cart(request, itemid, userid):           # Buynow button in addtocart
+    if User.is_authenticated:
+        login_user = User.objects.get(pk= userid)
+        user = UserRegister.objects.get(user_email=login_user.email)
+
+        ordereditem = AddToCart.objects.get(pk= itemid, cart_useremail= login_user.email)
+
+        if Order.objects.filter(order_name= ordereditem.cart_name, order_useremail= login_user.email).exists():
+            order = Order.objects.get(order_name= ordereditem.cart_name, order_useremail= login_user.email)
+            return render(request, "order.html", {'order': order})
+
+        else:
+            #ordereditem = Item.objects.get(pk= itemid)
+            order = Order()
+            order.order_useremail = login_user.email
+            order.order_name = ordereditem.cart_name
+            order.order_image = ordereditem.cart_image
+            order.order_price = ordereditem.cart_price
+            order.order_publisher = ordereditem.cart_publisher
+            order.order_description = ordereditem.cart_description
+            order.order_origin = ordereditem.cart_origin
+            order.order_phonenumber = user.user_phonenumber
+            order.order_address = user.user_address
+            order.save() 
+            return render(request, "order.html", {'order': order})
+
+
+    else:
+        text="Please Login in to your account !!!"
+        return render(request, 'note.html', {'text': text})
+
+
+
+
+def conformorder(request, userid, itemid):              # Conform order button in order page
+    if User.is_authenticated:
+        if itemid:
+            login_user = User.objects.get(pk= userid)
+            user = UserRegister.objects.get(user_email= login_user.email)
+            order = Order.objects.get(pk= itemid, order_useremail= login_user.email)
+            return render(request, 'conformationpage.html', {'order': order})
+
+        else:
+            text = "Sorry, due to some techinical issue we cannot process your request. Please try again !!!"
+            return render(request, 'note.html', {'text': text})
+
+
+    else:
+        text = "Please Login and try again"
+        return render(request, 'note.html', {'text': text})
+
+
+
+
+
+
+def generatepdf(request, userid, itemid):
     login_user = User.objects.get(pk= userid)
-    user = UserRegister.objects.get(user_email=login_user.email)
+    user = UserRegister.objects.get(user_email= login_user.email)
+    order = Order.objects.get(pk= itemid, order_useremail= login_user.email)
 
-    orderitem = Item.objects.get(pk= itemid)
+    if request.method == "POST":
+        order.order_phonenumber = request.POST['phonenumber']
+        order.order_quantity = int(request.POST['quantity'])
+        order.save()
+    print(order.order_price, type(order.order_price))
+    print(order.order_quantity, type(order.order_quantity))
+    order.order_total_price = order.order_quantity * order.order_price
+    order.save()
+
+
+    data = {
+            'product_name': order.order_name, 
+            'user_name': login_user.username,
+            'email': login_user.email,
+            'price': order.order_price,
+            'quantity': order.order_quantity,
+            'total_price': order.order_total_price,
+            'publisher': order.order_publisher,
+            'origin': order.order_origin,
+            'billing_address': user.user_address,
+            'shipping_address': order.order_address,
+            'phone_number': order.order_phonenumber,
+            'ordered_date': order.order_ordered_date,
+            'delivery_date': order.order_delivery_date,
+
+    }
+    
+    pdf = render_to_pdf("invoice.html", data)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        #filename = 'Invoice_12341234.pdf'
+        content = 'inline; filename= "Invoice_%s.pdf" ' %(order.order_name)
+        download = request.GET.get("download")
+        if download:
+            content = 'attachment; filename="Invoice_%s.pdf" ' %(order.order_name)
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Not found")
+
+
+
+
+    """
     if request.method=="POST":
 
         param_dict = {
@@ -244,7 +427,9 @@ def buynow(request, itemid, userid):
         return render(request, 'paytm.html', {'param_dict': param_dict})
     return HttpResponse("Something went wrong . Please try again")
 
+    """
 
+"""
 @csrf_exempt
 def handlerequest(request):
     # paytm will send you post request here
@@ -267,3 +452,5 @@ def handlerequest(request):
             print('order was not successful because' + response_dict['RESPMSG'])
 
     return render(request, 'paymentstatus.html', {'response': response_dict})
+
+"""

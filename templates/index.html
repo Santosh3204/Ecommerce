@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Revolin</title>
 
+
 </head>
 <!--
 <script>
@@ -142,14 +143,18 @@
           border: 1px solid #ccc;  
         }
       }
+
+  
       </style>
 
 
 <body>
     <section>
+      <div class="title_heading">
         <center>
         <h1>Welcome to Revolin e-commerce website</h1>
         </center>
+      </div>
         {% block topnav %}
         <div class="topnav" id="nav">
             <a class="active" href="{% url "index" %}">Home</a>
@@ -157,7 +162,10 @@
             <a href="{% url "News" %}">News</a>
             <a href="{% url "Offers" %}">Offers</a>
         {% endblock %}
+        <form method="POST" action="{% url "searchbar" %}">
+          {% csrf_token %}
             <input type="text" value="" name="searchbar"  placeholder="Search">
+        </form>
           
         {% if user.is_authenticated %}
             <div class="dropdown">
@@ -166,9 +174,8 @@
                 </button>
                 <div class="dropdown-content">
                         <a href="{% url 'profile' user.id %}">Profile{{user.user_email}}</a>
-                        <a href="{% url "dropdown" %}">Orders</a>
+                        <a href="{% url "orders_view" user.id %}">Orders</a>
                         <a href="{% url "addtocart_view" user.id %}">Your Cart</a>
-                        <a href="{% url "dropdown" %}">Settings</a>
                         <a href="{% url "logout" %}">Logout</a>        
                 </div>
             </div>
@@ -197,20 +204,17 @@
                 <br>
                 
             {% if user.is_authenticated %}
-            <form action="{% url "buynow" items.id user.id %}" method="POST">
-              {% csrf_token %}
-              <input type="submit" value="Buy Now" name="buynow">
-             </form>
+            
+                <a href="{% url 'buynow' items.id user.id %}"><button>Buy Now</button></a>
                 <a href="{% url 'addtocart' user.id items.id %}"><button>Add to Cart</button></a>
+            
 
             {% else %}
-              <form action="{% url "buynow" items.id user.id %}" method="POST">
+                <a href="{% url 'addtocart_inactiveuser' %}"><button>Buy Now</button></a>
+                <a href="{% url 'addtocart_inactiveuser' %}"><button>Add to Cart</button></a>
 
-                {% csrf_token %}
-                <input type="submit" value="Buy Now" name="buynow">
-             </form>
     
-            <a href="{% url 'addtocart_inactiveuser' %}"><button>Add to Cart</button></a>
+            
             {% endif %}
             
         </center>    

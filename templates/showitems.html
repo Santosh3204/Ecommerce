@@ -1,70 +1,62 @@
-<!--
-
 {% extends 'index.html' %}
-{% load static %}
+
+
+
 {% block content %}
-{% block items %}
-<body>  
-
-<style>
-    .column {
-        float: left;
-        width: 30%;
-        padding: 25px;
-    }
-
-    .row::after {
-        content: "";
-        clear: both;
-        display: table;
-    }
-    
-</style>
-<section>
-    <div class="row">
-        {% for items in items %}
-        <div class="column">
-            <center>
-            <img src="{{items.item_image.url}}" width="250px" height="150px"><br>
-            {{items.item_name}} <br>Price : RS.{{items.item_price}} <br> Country of origin : {{items.item_origin}}<br>
-                    
-            <br>
-            ***comment here
-            <form action="{% url "buynow" %}" method="POST">
-
-                {% csrf_token %}
-                <input type="submit" value="Buy Now" name="buynow" style="background-color: rgb(99, 109, 245);">    
-            </form>
-            <form action="{% url "AddToCart" %}" method="POST">
-
-                {% csrf_token %}
-
-                <input type="submit" value="Add to cart" name="addtocart" style="background-color: rgb(99, 109, 245);">
-            </form>
+    <body>  
         
-        
-            <a href="{% url "buynow" %}"><button>Buy Now</button></a>
+    <style>
+        .column {
+            float: left;
+            width: 20%;
+            padding: 25px;
+        }
 
-            <a href="{% url "AddToCart" %}"><button>Add to Cart</button></a>
-        ***close comment here
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        
+    </style>
+    <section>
+        <div class="row">
+            {% for items in items %}
+            <div class="column">
+                <center>
+                <img src="{{items.item_image.url}}" width="250px" height="150px"><br>
+                <a href="{% url "itemdetails" items.id %}" style="text-decoration:red;"><h3>{{items.item_name}}</h3></a>
+                Price : RS.{{items.item_price}} <br>
+                Country of origin : {{items.item_origin}}<br>
+                <br>
+                
+            {% if user.is_authenticated %}
             
-              
-    </center>    
+                <a href="{% url 'buynow' items.id user.id %}"><button>Buy Now</button></a>
+                <a href="{% url 'addtocart' user.id items.id %}"><button>Add to Cart</button></a>
+            
+
+            {% else %}
+                <a href="{% url 'addtocart_inactiveuser' %}"><button>Buy Now</button></a>
+                <a href="{% url 'addtocart_inactiveuser' %}"><button>Add to Cart</button></a>
+
+
+            
+            {% endif %}
+            
+        </center>    
+            </div>
+            {% endfor %}
+            
         </div>
-        {% endfor %}
+
         
-    </div>
-
-    
-</section>
-
-
-<form action="{% url 'index' %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="Homepage" name="Homepage">
-</form>
-{% endblock %}
+        </section>
 <br><br><br><br><br><br>
-{% endblock %}
+
+
 </body>
--->
+
+{% endblock %}
+
+
